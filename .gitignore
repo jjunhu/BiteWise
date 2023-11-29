@@ -158,3 +158,15 @@ cython_debug/
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
+src/data_preprocessing/raw/yelp_academic_dataset_business.csv
+src/data_preprocessing/raw/yelp_academic_dataset_business.json
+.gitignore
+src/data_preprocessing/raw/yelp_academic_dataset_checkin.json
+src/data_preprocessing/raw/yelp_academic_dataset_review.csv
+src/data_preprocessing/raw/yelp_academic_dataset_review.json
+.gitignore
+.gitignore
+src/data_preprocessing/raw/yelp_academic_dataset_tip.json
+src/data_preprocessing/raw/yelp_academic_dataset_user.json
+.gitignore
+src/data_preprocessing/processed/processed_yelp_dataset.csv
