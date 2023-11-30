@@ -170,3 +170,5 @@ src/data_preprocessing/raw/yelp_academic_dataset_tip.json
 src/data_preprocessing/raw/yelp_academic_dataset_user.json
 .gitignore
 src/data_preprocessing/processed/processed_yelp_dataset.csv
+
+./data
