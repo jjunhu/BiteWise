@@ -57,7 +57,7 @@ class ChatInterface(QWidget):
             QTextEdit {
                 background-color: #f0f0f0;
                 color: #333333;
-                font-family: 'Segoe UI';
+                font-family: 'Segoe UI';z
                 font-size: 12px;
                 line-height: 1.5;
             }
@@ -97,7 +97,7 @@ class ChatInterface(QWidget):
             fontWeight = "bold"  # 用户消息加粗
         else:  # GPT 消息
             color = "#2E8B57"
-            alignment = Qt.AlignRight
+            alignment = Qt.AlignLeft
             fontWeight = "bold"
 
         self.chatHistory.setAlignment(alignment)
