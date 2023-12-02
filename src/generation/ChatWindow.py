@@ -1,13 +1,17 @@
 import sys
+import time
+
 from PyQt5.QtWidgets import QApplication, QWidget, QTextEdit, QPushButton, QVBoxLayout, QLineEdit, QHBoxLayout
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
 from PyQt5.QtGui import QPixmap, QPalette, QBrush
+from ChatBot import ChatBot
 
 class ChatInterface(QWidget):
-    def __init__(self):
+    def __init__(self, Bot):
         super().__init__()
         self.initUI()
+        self.Bot = Bot
 
     def initUI(self):
         # Set up the main layout
@@ -25,12 +29,13 @@ class ChatInterface(QWidget):
         self.inputLine = QLineEdit(self)
 
         # 增加输入框和发送按钮的高度
-        inputHeight = 35  # 输入框和按钮的高度
+        inputHeight = 32  # 输入框和按钮的高度
         self.inputLine.setMinimumHeight(inputHeight)
         self.submitButton = QPushButton('Send', self)
         sendButtonFont = QFont('Segoe UI', 12)  # 设置字体和大小
         self.submitButton.setFont(sendButtonFont)
         self.submitButton.setMinimumHeight(inputHeight)
+
 
         self.inputLine.returnPressed.connect(self.onSubmit)
         self.submitButton.clicked.connect(self.onSubmit)
@@ -39,6 +44,8 @@ class ChatInterface(QWidget):
 
         # 设定字体和样式
         self.setupFontsAndStyles()
+        self.inputLine.setStyleSheet("font-size: 14pt;")  # 例如，字体大小设置为 14pt
+
 
         mainLayout.addWidget(self.chatHistory)
         mainLayout.addLayout(inputLayout)
@@ -77,17 +84,11 @@ class ChatInterface(QWidget):
     def onSubmit(self):
         # Get user input
         userInput = self.get_user_input()
-
+        self.display_message('[Me] ' + userInput, "user")
         # Display user message
-        self.display_message(userInput, "user")
-        print(userInput)
-        # TODO: Call GPT model to process the input and get a response
-        # gptResponse = gpt_response(userInput)
-        # Assumed GPT response
-        gptResponse = "This is the GPT response."
-
-        # Display GPT model response
-        self.display_message(gptResponse, "gpt")
+        # time.sleep(2)
+        gptResponse = self.Bot.chat(userInput)
+        self.display_message("[GPT] "+gptResponse.choices[0].message.content, "gpt")
 
     def display_message(self, message, sender):
         # 根据发送者加粗字体和设置消息样式
@@ -111,7 +112,8 @@ class ChatInterface(QWidget):
         return userInput
 
 if __name__ == '__main__':
+    Bot = ChatBot()
     app = QApplication(sys.argv)
-    ex = ChatInterface()
+    ex = ChatInterface(Bot)
     ex.show()
     sys.exit(app.exec_())
