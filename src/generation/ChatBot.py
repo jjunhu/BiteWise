@@ -12,7 +12,12 @@ class ChatBot:
     def push_mem(self, role, msg):
         self.memory.append({"role": role, "content": msg})
 
-    def chat(self, prompt):
+    def chat(self, file_content, prompt):
+        file_prompt  = ""
+        if file_content:
+            file_prompt = "The file content is {f}".format(f=file_content)
+        prompt = file_prompt + prompt
+
         self.push_mem("user", prompt)
         chat_completion = self.client.chat.completions.create(
             messages=[
