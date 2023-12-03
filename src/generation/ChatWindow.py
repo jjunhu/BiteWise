@@ -7,6 +7,9 @@ from PyQt5.QtGui import QFont, QIcon
 from PyQt5.QtGui import QPixmap, QPalette, QBrush
 from ChatBot import ChatBot
 from PyQt5.QtWidgets import QFileDialog, QPushButton, QHBoxLayout
+from threading import Thread
+import markdown2
+from PyQt5.QtWidgets import QLabel
 
 class ChatInterface(QWidget):
     def __init__(self, Bot):
@@ -47,6 +50,12 @@ class ChatInterface(QWidget):
         self.submitButton.setFont(sendButtonFont)
         self.submitButton.setFixedHeight(elementHeight)  # Set fixed height
 
+        # Create a QLabel to display the loading message
+        self.loadingLabel = QLabel("Loading...", self)
+        self.loadingLabel.setAlignment(Qt.AlignCenter)
+        self.loadingLabel.setStyleSheet("color: #808080;")  # Set font color to gray
+        self.loadingLabel.hide()  # Initially hidden
+
         # Connect signals
         self.inputLine.returnPressed.connect(self.onSubmit)
         self.submitButton.clicked.connect(self.onSubmit)
@@ -86,12 +95,14 @@ class ChatInterface(QWidget):
         self.setChatHistoryBackground("./bg.png")
 
     def setChatHistoryBackground(self, imagePath):
-        # 使用样式表设置背景图片
+        # Set background image with fixed attachment
         self.chatHistory.setStyleSheet(f"""
             QTextEdit {{
                 background-image: url({imagePath});
+                background-attachment: fixed;
                 background-repeat: no-repeat;
                 background-position: center;
+                
             }}
         """)
 
@@ -99,13 +110,16 @@ class ChatInterface(QWidget):
         # 根据发送者加粗字体和设置消息样式
         if sender == "user":
             color = "#1A1A1A"
-            alignment = Qt.AlignLeft
             fontWeight = "bold"  # 用户消息加粗
+
+        elif sender == "sys":
+            color = "#A9A9A9"
+            fontWeight = "bold"
         else:  # GPT 消息
             color = "#2E8B57"
-            alignment = Qt.AlignLeft
             fontWeight = "bold"
 
+        alignment = Qt.AlignLeft
         self.chatHistory.setAlignment(alignment)
         self.chatHistory.append(f"<div style='color: {color}; font-weight: {fontWeight}; margin: 2px; padding: 5px; font-size: 14px;'>{message}</div>")
 
@@ -125,17 +139,33 @@ class ChatInterface(QWidget):
     def onSubmit(self):
         # Get user input
         userInput = self.get_user_input()
+
+        # Display system message if file is uploaded
+        if self.filePath:
+            self.display_message('[SYS] ' + 'File Uploaded', "sys")
+
+        # Display user message immediately
         self.display_message('[Me] ' + userInput, "user")
 
-        # 如果有文件路径，可以在这里使用它
-        if self.filePath:
-            with open(self.filePath, 'rb') as file:
-                file_content = file.read()
-                gptResponse = self.Bot.chat(file_content, userInput)
-                self.display_message("[GPT] " + gptResponse.choices[0].message.content, "gpt")
-        else:
-            gptResponse = self.Bot.chat(None, userInput)
-            self.display_message("[GPT] " + gptResponse.choices[0].message.content, "gpt")
+        # Start a new thread for fetching GPT response
+        Thread(target=self.chat, args=(self.filePath, userInput)).start()
+
+    def chat(self, file_path, userInput):
+        self.loadingLabel.show()
+        try:
+            if file_path:
+                with open(file_path, 'rb') as file:
+                    file_content = file.read()
+                    gptResponse = self.Bot.chat(file_content, userInput)
+            else:
+                gptResponse = self.Bot.chat(None, userInput)
+            self.loadingLabel.hide()
+            self.display_message("[GPT] " + markdown2.markdown(gptResponse.choices[0].message.content), "gpt")
+        except Exception as e:
+            print("Error in fetching GPT response:", e)
+
+
+
 
 if __name__ == '__main__':
     Bot = ChatBot()

@@ -24,7 +24,7 @@ class ChatBot:
                 {"role": "system", "content": "You are now a restaurant management expert.",},
                 {"role": "user", "content": str(self.memory) + prompt},
             ],
-            model="gpt-4",
+            model="gpt-4-1106-preview",
         )
         self.push_mem("assistant", chat_completion.choices[0].message.content)
         return chat_completion
