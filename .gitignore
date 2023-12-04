@@ -2,3 +2,5 @@ data/
 notebooks/gpt2_finetuned/
 notebooks/logs/
 notebooks/results/
+notebooks/model/
+
